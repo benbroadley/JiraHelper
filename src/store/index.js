@@ -1,31 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import _ from "lodash";
+import config from "../config";
 
 Vue.use(Vuex);
-
-const config = {
-  expectedHeaders:
-    "Issue Type,Issue key,Issue id,Summary,Reporter,Priority,Status,Created,Updated,Custom field (Release Note),Sprint,Sprint,Custom field (Estimate Accuracy),Custom field (Story Points),Custom field (T-Shirt Size),Fix versions",
-  sanitisedHeaders: [
-    "type",
-    "key",
-    "id",
-    "summary",
-    "reporter",
-    "priority",
-    "status",
-    "created",
-    "updated",
-    "releaseNote",
-    "sprint",
-    "sprint1",
-    "estimateAccuracy",
-    "storyPoints",
-    "tShirtSize",
-    "version",
-  ],
-};
 
 const getDayEstimate = (t) => {
   const tShirtToDays = {
@@ -36,14 +14,8 @@ const getDayEstimate = (t) => {
     XL: 20,
   };
 
-  const storyPointsToDays = 5;
-
   if (t.tShirtSize && tShirtToDays[t.tShirtSize]) {
     return tShirtToDays[t.tShirtSize];
-  }
-
-  if (t.storyPoints) {
-    return t.storyPoints / storyPointsToDays;
   }
 
   return 0;
@@ -77,7 +49,7 @@ export const store = new Vuex.Store({
       //     return h ? " " : "";
       //   });
       // });
-      const ticketsArray = payload.split("\n");
+      const ticketsArray = payload.split(process.env.VUE_APP_DELIMETER || "\n");
       // Get the headers and check that they're what we're expecting.
       let headers = ticketsArray.shift();
       if (headers !== config.expectedHeaders) {
@@ -107,8 +79,15 @@ export const store = new Vuex.Store({
       commit("updateDataErr", false);
     },
     getEstimates({ commit, state }, payload) {
-      console.log("payload", payload);
-      const estimates = _.map(state.ticketArray, (t) => {
+      let tickets = state.ticketArray;
+
+      if (payload.version) {
+        tickets = _.filter(tickets, (t) => {
+          return t.version === payload.version;
+        });
+      }
+
+      const estimates = _.map(tickets, (t) => {
         return {
           key: t.key,
           summary: t.summary,

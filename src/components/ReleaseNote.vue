@@ -1,6 +1,10 @@
 <template>
   <div>
     <h2>Release note:</h2>
+    <transition name="fade">
+      <b-alert :show="copied" variant="info">Release note has been copied to the clipboard.</b-alert>
+    </transition>
+
     <div class="row mb-3">
       <div class="col-1">Sprint:</div>
       <div class="col-3">
@@ -12,7 +16,9 @@
       <div class="col-2"></div>
       <div class="col-3"></div>
       <div class="col-3">
-        <b-button variant="primary">Copy to clipboard</b-button>
+        <b-button variant="primary"
+          v-clipboard:copy="releaseNotes"
+          v-clipboard:success="onCopy">Copy to clipboard</b-button>
       </div>
     </div>
 
@@ -30,7 +36,15 @@ import { map, filter, uniq, isUndefined } from "lodash-es";
 
 export default {
   data() {
-    return { selectedSprint: null };
+    return { selectedSprint: null, copied: false, };
+  },
+  methods: {
+    onCopy () {
+      this.copied = true;
+      setTimeout(() => {
+        this.copied = false;
+      }, 3000)
+    }
   },
   mounted () {
     this.selectedSprint = this.sprintOptions[this.sprintOptions.length - 1];
@@ -60,4 +74,15 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.6s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}</style>

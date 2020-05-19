@@ -36,6 +36,12 @@ export default {
       return this.$store.getters.dataErr;
     },
   },
+  created() {
+    if (process.env.VUE_APP_CSV) {
+      this.csv = process.env.VUE_APP_CSV;
+      this.submitData();
+    }
+  },
 };
 </script>
 <style></style>

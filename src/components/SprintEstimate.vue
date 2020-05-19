@@ -2,34 +2,58 @@
   <div>
     <h2>Sprint estimates:</h2>
     <div class="row">
-      <div class="col-3">
+      <div class="col-1">Version:</div>
+      <div class="col-2">
+        <b-form-select
+          v-model="selectedVersion"
+          :options="versionOptions"
+        ></b-form-select>
+      </div>
+      <div class="col-1">Overhead (%)</div>
+      <div class="col-1">
+        <b-form-input
+          type="number"
+          v-model="overhead"
+          placeholder="30"
+        ></b-form-input>
+      </div>
+      <div class="col-1">Developers</div>
+      <div class="col-1">
+        <b-form-input
+          type="number"
+          v-model="noOfDevelopers"
+          placeholder="4"
+        ></b-form-input>
+      </div>
+      <div class="col-2"></div>
+      <div class="col-2">
         <b-button @click="getEstimates" variant="outline-primary" class="m-2"
           >Get Estimates</b-button
         >
       </div>
-      <div class="col-3">
-        Days: <span>{{ noOfDays }}</span>
-      </div>
-      <div class="col-3">
-        Story points: <span>{{ noOfStorypoints }}</span>
-      </div>
-      <div class="col-3"></div>
     </div>
+    Functional day estimate: <span>{{ Math.round(noOfDays) }}</span> <br />
+    No. of sprints estimate:
+    <span>{{ Math.round(noOfSprints) + 1 }}</span>
 
-    <b-table striped hover :items="estimates"></b-table>
+    <!-- <b-table striped hover :items="estimates"></b-table> -->
   </div>
 </template>
 
 <script>
-// import { sum } from "lodash-es";
+import { uniq, map, filter, isUndefined } from "lodash-es";
 
 export default {
   data() {
-    return {};
+    return { selectedVersion: "", overhead: 30, noOfDevelopers: 4 };
   },
   methods: {
     getEstimates() {
-      this.$store.dispatch("getEstimates", this.csv);
+      const payload = {
+        version: this.selectedVersion,
+        overhead: this.overhead,
+      };
+      this.$store.dispatch("getEstimates", payload);
     },
   },
   computed: {
@@ -37,19 +61,24 @@ export default {
       return this.$store.getters.estimates;
     },
     noOfDays() {
-      return this.$store.getters.estimates.reduce((acc, cur) => {
-        return acc + cur.dayEstimate;
-      }, 0);
+      return (
+        this.$store.getters.estimates.reduce((acc, cur) => {
+          return acc + cur.dayEstimate;
+        }, 0) *
+        (1 + this.overhead / 100)
+      );
     },
-    noOfStorypoints() {
-      return this.$store.getters.estimates.reduce((acc, cur) => {
-        return acc + parseFloat(cur.storyPoints)
-          ? parseFloat(cur.storyPoints)
-          : 0;
-        // ? parseInt(cur.storyPoints\)
-        // : cur.dayEstimate * 5;
-      }, 0);
+    noOfSprints() {
+      return this.noOfDays / (this.noOfDevelopers * 9);
     },
+    versionOptions() {
+      return filter(uniq(map(this.$store.getters.tickets, "version")), (v) => {
+        return v !== "" && !isUndefined(v);
+      });
+    },
+  },
+  created() {
+    this.selectedVersion = this.versionOptions[0];
   },
 };
 </script>

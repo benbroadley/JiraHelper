@@ -4,21 +4,21 @@
       <b-navbar toggleable="sm" type="light" variant="light" class="mb-5">
         <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-        <b-navbar-brand>Jira Helper</b-navbar-brand>
+        <b-navbar-brand to="/">Jira Helper</b-navbar-brand>
 
         <b-collapse id="nav-text-collapse" is-nav>
           <b-navbar-nav>
             <b-nav-item :disabled="!hasData" to="/dataEntry"
-              >DataEntry</b-nav-item
+              >Data Entry</b-nav-item
             >
             <b-nav-item :disabled="!hasData" to="/estimateAccuracy"
-              >EstimateAccuracy</b-nav-item
+              >Estimate Accuracy</b-nav-item
             >
             <b-nav-item :disabled="!hasData" to="/releaseNote"
-              >ReleaseNote</b-nav-item
+              >Release Note</b-nav-item
             >
             <b-nav-item :disabled="!hasData" to="/sprintEstimate"
-              >SprintEstimate</b-nav-item
+              >Sprint Estimate</b-nav-item
             >
           </b-navbar-nav>
         </b-collapse>
@@ -28,9 +28,14 @@
 </template>
 
 <script>
+// import BuyMeACoffee from "./BuyMeACoffee.vue";
+
 export default {
   data() {
     return {};
+  },
+  components: {
+    // BuyMeACoffee,
   },
   computed: {
     hasData() {
